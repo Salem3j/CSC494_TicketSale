@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket Sale</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Ticket Sale</h2>
+    <div id="message"></div>
+    <div class="action">
+      <input type="number" id="ticketId" placeholder="Enter Ticket ID">
+      <button onclick="buyTicket()">Purchase Ticket</button>
+    </div>
+    <div class="action">
+      <input type="text" id="swapPartner" placeholder="Enter Partner Address">
+      <button onclick="offerSwap()">Offer Swap</button>
+    </div>
+    <div class="action">
+      <input type="text" id="acceptPartner" placeholder="Enter Partner Address">
+      <button onclick="acceptSwap()">Accept Swap</button>
+    </div>
+    <div class="action">
+      <button onclick="getTicketNumber()">Get Ticket Number</button>
+    </div>
+    <div class="action">
+      <input type="number" id="returnTicketId" placeholder="Enter Ticket ID">
+      <button onclick="returnTicket()">Return Ticket</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
