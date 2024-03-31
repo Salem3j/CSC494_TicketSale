@@ -2,32 +2,39 @@
 pragma solidity ^0.8.17;
 
 contract TicketSale {
+    uint public revenue;
+    string public ownerName;
     address public owner;
-    uint public numTickets;
-    uint public ticketPrice;
-    mapping(uint => address) public ticketOwners;
+    uint public ticketPrice; // Added ticket price variable
+
+    struct Ticket {
+        uint ticketId;
+        address ownerAddress;
+    }
+
+    mapping(uint => Ticket) public ticketOwners;
     mapping(address => uint) public addressToTicket;
     mapping(address => address) public swapOffers;
 
-    constructor(uint _numTickets, uint _price) {
+    constructor(string memory _ownerName, uint _ticketPrice) {
+        ownerName = _ownerName;
         owner = msg.sender;
-        numTickets = _numTickets;
-        ticketPrice = _price;
+        ticketPrice = _ticketPrice;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the contract owner can call this function");
+        _;
     }
 
     function buyTicket(uint ticketId) public payable {
-        require(msg.sender != owner, "Owner cannot buy tickets");
-        require(ticketId > 0 && ticketId <= numTickets, "Invalid ticketId");
-        require(ticketOwners[ticketId] == address(0), "Ticket already sold");
-        require(addressToTicket[msg.sender] == 0, "You already have a ticket");
+        require(ticketId > 0, "Invalid ticketId");
+        require(ticketOwners[ticketId].ownerAddress == address(0), "Ticket already sold");
         require(msg.value == ticketPrice, "Incorrect payment amount");
 
-        ticketOwners[ticketId] = msg.sender;
+        ticketOwners[ticketId] = Ticket(ticketId, msg.sender);
         addressToTicket[msg.sender] = ticketId;
-    }
-
-    function getTicketOf(address person) public view returns (uint) {
-        return addressToTicket[person];
+        revenue += msg.value;
     }
 
     function offerSwap(address partner) public {
@@ -51,13 +58,18 @@ contract TicketSale {
     }
 
     function returnTicket(uint ticketId) public {
-        require(ticketOwners[ticketId] == msg.sender, "You don't own this ticket");
-        ticketOwners[ticketId] = address(0);
+        require(ticketOwners[ticketId].ownerAddress == msg.sender, "You don't own this ticket");
+        ticketOwners[ticketId] = Ticket(ticketId, address(0));
         addressToTicket[msg.sender] = 0;
 
-        // Calculate the refund after a 10% service fee
         uint refundAmount = (ticketPrice * 9) / 10;
         (bool success, ) = owner.call{value: refundAmount}("");
         require(success, "Refund failed");
+
+        revenue -= refundAmount;
+    }
+
+    function getRevenue() public view returns (uint) {
+        return revenue;
     }
 }
